@@ -4,6 +4,7 @@ from robocorp import browser
 from RPA.HTTP import HTTP
 from RPA.Excel.Files import Files
 from RPA.PDF import PDF
+from RPA.Robocorp.Vault import Vault
 
 
 @task
@@ -29,9 +30,11 @@ def open_the_intranet_website():
 def log_in():
     """Fills in the login form and clicks the 'Log in' button"""
     page = browser.page()
-    page.fill("#username", "maria")
-    page.fill("#password", "thoushallnotpass")
+    secret = Vault().get_secret("robotsparebin")
+    page.fill("#username", secret["username"])
+    page.fill("#password", secret["password"])
     page.click("button:text('Log in')")
+    page.wait_for_selector("#sales-form")
 
 
 def fill_and_submit_sales_form(sales_rep):
@@ -47,7 +50,9 @@ def fill_and_submit_sales_form(sales_rep):
 
 def download_excel_file():
     """Downloads excel file from the given URL"""
-    HTTP().download(url="https://robotsparebinindustries.com/SalesData.xlsx", overwrite=True)
+    HTTP().download(
+        url="https://robotsparebinindustries.com/SalesData.xlsx", overwrite=True
+    )
 
 
 def fill_form_with_excel_data():
